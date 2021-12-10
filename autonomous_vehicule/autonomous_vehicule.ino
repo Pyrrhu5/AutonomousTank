@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include "vehicule.cpp"
+#include "obstacle_detector.cpp"
+/* #include <Servo.h> */
 
-Engine right = Engine(12,10,6);
+Engine right;
 const int encoderRightPin = 3;
-Engine left = Engine(9, 8, 5);
+Engine left;
 const int encoderLeftPin = 2;
-Vehicule tank(right, left, 0.019, 30);
+Vehicule tank;
+ObstacleDetector avoidance;
 
 /* Interrupts require static function outside of classes... */
 void encoder_right(){
@@ -26,12 +29,29 @@ void setup() {
 	attachInterrupt(digitalPinToInterrupt(encoderRightPin), encoder_right, FALLING);
 	attachInterrupt(digitalPinToInterrupt(encoderLeftPin), encoder_left, FALLING);
 
+	right.begin(12, 10, 6);
+	left.begin(9, 8, 5);
+	avoidance.begin(11);
+	tank.begin(right, left, 0.019, 30);
+
 	tank.set_speed(100);
 }
 
 void loop() {
-	tank.move(1);
-	tank.stop();
-	delay(5000);
+	Serial.println(0);
+	avoidance.set_angle(0);
+	delay(2000);
+	Serial.println(45);
+	avoidance.set_angle(45);
+	delay(2000);
+	Serial.println(90);
+	avoidance.set_angle(90);
+	delay(2000);
+	Serial.println(135);
+	avoidance.set_angle(135);
+	delay(2000);
+	Serial.println(180);
+	avoidance.set_angle(180);
+	delay(2000);
 }
 

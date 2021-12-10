@@ -12,12 +12,13 @@ class Vehicule{
 		// int target speed
 
 	public: 
-		Vehicule(Engine &engineRight, Engine &engineLeft, float meterPerTick, float degreePerTick){ 
+		void begin(Engine &engineRight, Engine &engineLeft, float meterPerTick, float degreePerTick){ 
 			this->engines[0] = &engineRight;
 			this->engines[1] = &engineLeft;
 			this->meterPerTick = meterPerTick;
 			this->degreePerTick = degreePerTick;
 		}
+
 
 		/* 
  			Set the speed of the vehicule in percentage 

@@ -26,57 +26,58 @@ class Engine {
 		volatile unsigned int tick=0;
 
 	/* Constructor: set up the pins and stop the motor */
-	public: Engine(
-		int forwardPin,
-		int backwardPin,
-		int speedPin,
-		int speedMin = 100,
-		int speedMax = 255
-	){
-		this->forwardPin = forwardPin;
-		pinMode(this->forwardPin, OUTPUT);
-		this->backwardPin = backwardPin;
-		pinMode(this->backwardPin, OUTPUT);
-		this->speedPin = speedPin;
-		pinMode(this->speedPin, OUTPUT);
+	public:
+		void begin(
+			int forwardPin,
+			int backwardPin,
+			int speedPin,
+			int speedMin = 100,
+			int speedMax = 255
+		){
+			this->forwardPin = forwardPin;
+			pinMode(this->forwardPin, OUTPUT);
+			this->backwardPin = backwardPin;
+			pinMode(this->backwardPin, OUTPUT);
+			this->speedPin = speedPin;
+			pinMode(this->speedPin, OUTPUT);
 
-		// Stop the motor
-		stop();
-		analogWrite(this->speedPin, 0);
+			// Stop the motor
+			stop();
+			analogWrite(this->speedPin, 0);
 
-		this->speedMin = speedMin;
-		this->speedMax = speedMax;
-	}
-
-
-	public: set_rotation_tick(){
-		if (millis() - this->lastTick > 50){
-			this->tick++;
-			this->lastTick = millis();
+			this->speedMin = speedMin;
+			this->speedMax = speedMax;
 		}
-	}
 
-	/* Set the speed of rotation from a range of 0% to 100% */
-	public: set_speed_percent(unsigned int percent){
-		this->speed = map(percent, 0, 100, this->speedMin, this->speedMax);
-		analogWrite(this->speedPin, this->speed);
-	}
 
-	/* Turn the motor forward */
-	public: forward(){
-		digitalWrite(this->forwardPin, 1);
-		digitalWrite(this->backwardPin, 0);
-	}
+		void set_rotation_tick(){
+			if (millis() - this->lastTick > 50){
+				this->tick++;
+				this->lastTick = millis();
+			}
+		}
 
-	/* Turn the motor backward */
-	public: backward(){
-		digitalWrite(this->forwardPin, 0);
-		digitalWrite(this->backwardPin, 1);
+		/* Set the speed of rotation from a range of 0% to 100% */
+		void set_speed_percent(unsigned int percent){
+			this->speed = map(percent, 0, 100, this->speedMin, this->speedMax);
+			analogWrite(this->speedPin, this->speed);
+		}
 
-	}
-	/* Stop the motor */
-	public: stop(){
-		digitalWrite(this->forwardPin, 0);
-		digitalWrite(this->backwardPin, 0);
-	}
+		/* Turn the motor forward */
+		void forward(){
+			digitalWrite(this->forwardPin, 1);
+			digitalWrite(this->backwardPin, 0);
+		}
+
+		/* Turn the motor backward */
+		void backward(){
+			digitalWrite(this->forwardPin, 0);
+			digitalWrite(this->backwardPin, 1);
+
+		}
+		/* Stop the motor */
+		void stop(){
+			digitalWrite(this->forwardPin, 0);
+			digitalWrite(this->backwardPin, 0);
+		}
 };
