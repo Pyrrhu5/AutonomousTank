@@ -31,27 +31,14 @@ void setup() {
 
 	right.begin(12, 10, 6);
 	left.begin(9, 8, 5);
-	avoidance.begin(11);
+	avoidance.begin(11, A3, A2);
 	tank.begin(right, left, 0.019, 30);
 
 	tank.set_speed(100);
 }
 
 void loop() {
-	Serial.println(0);
-	avoidance.set_angle(0);
-	delay(2000);
-	Serial.println(45);
-	avoidance.set_angle(45);
-	delay(2000);
-	Serial.println(90);
-	avoidance.set_angle(90);
-	delay(2000);
-	Serial.println(135);
-	avoidance.set_angle(135);
-	delay(2000);
-	Serial.println(180);
-	avoidance.set_angle(180);
+	Serial.println(avoidance.get_distance());
 	delay(2000);
 }
 
