@@ -38,7 +38,12 @@ void setup() {
 }
 
 void loop() {
-	Serial.println(avoidance.get_distance());
-	delay(2000);
+	avoidance.scan();
+	for (int i=0; i<5;i++){
+		Serial.print(i);
+		Serial.print(": ");
+		Serial.println(avoidance.angleDistances[i]);
+	}
+	delay(5000);
 }
 

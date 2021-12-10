@@ -6,6 +6,10 @@ class ObstacleDetector {
 		int echoPin;
 		int triggerPin;
 		Servo servo;
+		static const int nAnglesToCheck = 5;
+		static const int anglesToCheck[nAnglesToCheck] = {90, 135, 180, 0, 45};
+	public:
+		float angleDistances[nAnglesToCheck];
 
 	public:
 		void begin(int servoPin, int echoPin, int triggerPin){
@@ -36,6 +40,16 @@ class ObstacleDetector {
 			digitalWrite(this->triggerPin, LOW);
 
 			return (pulseIn(this->echoPin, HIGH)) * 0.0001657;
+		}
+
+		void scan(){
+
+			for (int i=0; i<nAnglesToCheck; i++){
+				this->set_angle(this->anglesToCheck[i]);
+				this->angleDistances[i] = this->get_distance();
+				delay(50);
+			}
+			this->set_angle(90);
 		}
 
 };
