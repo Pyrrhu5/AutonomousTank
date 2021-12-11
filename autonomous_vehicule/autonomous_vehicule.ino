@@ -1,4 +1,5 @@
 #include <Arduino.h>
+/* #include <Vector.h> */
 #include "vehicule.cpp"
 #include "obstacle_detector.cpp"
 /* #include <Servo.h> */
@@ -35,15 +36,25 @@ void setup() {
 	tank.begin(right, left, 0.019, 30);
 
 	tank.set_speed(100);
+	Serial.println((180/45)+1);
 }
 
 void loop() {
-	avoidance.scan();
-	for (int i=0; i<5;i++){
-		Serial.print(i);
-		Serial.print(": ");
-		Serial.println(avoidance.angleDistances[i]);
-	}
+	/* int currentAngle = 0; */
+	/* float scanData[5]; */
+	/* for (int i = 0; i < 5; i++){ */
+	/* 	avoidance.set_angle(currentAngle); */
+	/* 	Serial.println(currentAngle); */
+	/* 	delay(75); */
+	/* 	scanData[i] = avoidance.get_distance(); */
+	/* 	Serial.println(scanData[i]); */
+	/* 	currentAngle += 45; */
+	/* } */
+	/* avoidance.set_angle(90); */
+	/* delay(5000); */
+	
+	int scanData=avoidance.best_angle();
+	Serial.println(scanData);
 	delay(5000);
 }
 
