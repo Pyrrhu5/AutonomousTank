@@ -6,7 +6,7 @@ class Vehicule{
 		Engine *engines[2];
 		float meterPerTick;
 		float degreePerTick;
-	private:
+	public:
 		unsigned int tickTarget=0;
 		// for acceleration/deceleration
 		// int target speed
@@ -53,7 +53,7 @@ class Vehicule{
 			sign of degrees (negative == left)
 			Does not stop after reaching the destination.
 		*/
-		void turn(float degree, float sharpness = 1){
+		void turn(int degree, float sharpness = 1){
 			this->reset_tick();
 			if (degree < 1){
 				this->engines[0]->backward();
@@ -62,7 +62,6 @@ class Vehicule{
 				this->engines[1]->backward();
 				this->engines[0]->forward();
 			}
-			// One tick on both side == 20deg
 			this->tickTarget = round(abs(degree)/this->degreePerTick);
 		}
 
@@ -82,7 +81,7 @@ class Vehicule{
 			The tickTarget is set by turn and move methods
 		*/
 		bool has_reached_destination(){
-			return this->engines[0]->tick >= this->tickTarget;
+			return this->engines[1]->tick >= this->tickTarget;
 		}
 
 		/* 
@@ -91,7 +90,7 @@ class Vehicule{
 			<unsigned int> speed (in percent, optional) to determin
 			the distance it covers.
 			Used to determin this->meterPerTick given by
-			the result: tick/measurement
+			the result: measurement/tick
 		*/
 		void test_forward(unsigned int tick, unsigned int speed=100){
 			this->reset_tick();
@@ -100,6 +99,16 @@ class Vehicule{
 			for (int i=0; i<2; i++){
 				this->engines[i]->forward();
 			}
+			while (!this->has_reached_destination()){;}
+			this->stop();
+		}
+
+		void test_turn(unsigned int tick, unsigned int speed=100){
+			this->reset_tick();
+			this->set_speed(speed);
+			this->tickTarget = tick;
+			this->engines[0]->forward();
+			this->engines[1]->backward();
 			while (!this->has_reached_destination()){;}
 			this->stop();
 		}

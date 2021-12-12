@@ -50,11 +50,11 @@ class Engine {
 		}
 
 
-		void set_rotation_tick(){
-			if (millis() - this->lastTick > 50){
+		void increment_tick(){
+			/* if (millis() - this->lastTick > 50){ */
 				this->tick++;
-				this->lastTick = millis();
-			}
+				/* this->lastTick = millis(); */
+			/* } */
 		}
 
 		/* Set the speed of rotation from a range of 0% to 100% */
