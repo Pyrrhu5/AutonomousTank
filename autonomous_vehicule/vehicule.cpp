@@ -81,7 +81,7 @@ class Vehicule{
 			The tickTarget is set by turn and move methods
 		*/
 		bool has_reached_destination(){
-			return this->engines[1]->tick >= this->tickTarget;
+			return this->engines[0]->tick >= this->tickTarget;
 		}
 
 		/* 
