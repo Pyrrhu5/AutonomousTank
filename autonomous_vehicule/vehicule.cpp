@@ -1,5 +1,7 @@
 #include <Arduino.h>
-#include "engine.cpp"
+#ifndef Engine
+	#include "engine.cpp"
+#endif
 
 class Vehicule{
 	public:

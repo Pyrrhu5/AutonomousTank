@@ -1,8 +1,7 @@
 #include <Arduino.h>
-/* #include <Vector.h> */
-#include "vehicule.cpp"
-#include "obstacle_detector.cpp"
-/* #include <Servo.h> */
+#ifndef Brain
+	#include "brain.cpp"
+#endif
 
 Engine right;
 const int encoderRightPin = 3;
@@ -32,17 +31,13 @@ void setup() {
 
 	right.begin(12, 10, 6);
 	left.begin(9, 8, 5);
-	avoidance.begin(11, A3, A2);
+	avoidance.begin(11, A3, A2, 0.25, 0.75);
 	tank.begin(right, left, 0.0275, 13.75);
-
-	tank.set_speed(50);
+	Brain brain(tank, avoidance, 0.1);
+	/* brain = Brain(tank, avoidance, 0.5); */
+	brain.drive();
 }
 
 void loop() {
-	tank.turn(180);
-	while(!tank.has_reached_destination()){
-	}
-	tank.stop();
-	delay(5000);
 }
 
