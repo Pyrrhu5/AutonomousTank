@@ -131,4 +131,12 @@ class ObstacleDetector {
 			else return -1;
 		}
 
+		/* Convert the servo angle (0 to 180 deg) to vehicule angle
+ 			(-90 to 90) or -1
+		*/
+		int angle_to_vehicule_angle(int angle){
+			if (angle == -1) return -1;
+			return map(angle, 0, 180, -90, 90);
+		}
+
 };
