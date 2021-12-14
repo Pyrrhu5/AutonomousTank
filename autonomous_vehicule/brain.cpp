@@ -25,29 +25,25 @@ class Brain{
 		/* Continously drives, straight if possible, while avoiding obstacles */
 		void drive(int speed=100){
 			this->vehicule->set_speed(speed);
+
 			// At start, choose the best direction
-			int direction = this->avoidance->best_angle();
-			direction = this->avoidance->angle_to_vehicule_angle(direction);
+			this->avoidance->best_angle();
+			AngleData *choice = &this->avoidance->scanData[0];
 						
 			while (true){
-				// turn back, all direction blocked
-				if (direction == -1){
-					this->vehicule->move(-1 * (this->decisionSensibility / 2));
-					while (!this->vehicule->has_reached_destination()){}
-					int direction = this->avoidance->best_angle();
-					direction = this->avoidance->angle_to_vehicule_angle(direction);
-					continue;
-				// turn, front blocked
-				} else if (direction != 0){ 
-					this->vehicule->turn(direction);
-				// continue straight
+				if (choice->vehiculeAngle == 0 && choice->distance < decisionSensibility){
+					Serial.println("Decision to move forward for " + String(choice->distance/2) + "m");
+					this->vehicule->move(choice->distance/2.0);
+				} else if (choice->vehiculeAngle == 0){
+					Serial.println("Decision to move forward for " + String(decisionSensibility) + "m (overwritten by decisionSensibility)");
+					this->vehicule->move(decisionSensibility);
 				} else {
-					this->vehicule->move(this->decisionSensibility);
+					Serial.println("Decision to turn to " + String(choice->vehiculeAngle) + " degrees");
+					this->vehicule->turn(choice->vehiculeAngle);
 				}
-	
 				while (!this->vehicule->has_reached_destination()){}
-				direction = this->avoidance->acceptable_angle();
-				direction = this->avoidance->angle_to_vehicule_angle(direction);
+				this->avoidance->acceptable_angle();
+				choice = &this->avoidance->scanData[0];
 			}
 		}
 };

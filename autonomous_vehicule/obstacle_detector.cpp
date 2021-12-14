@@ -1,15 +1,43 @@
+#include <ArduinoSTL.h>
 #include <Arduino.h>
 #include <Servo.h>
+
+
+// Type to hold scan data
+struct AngleData {
+	int servoAngle;
+	int vehiculeAngle;
+	float distance;
+	// Distance * coef of distance from the middle index
+	// the closest to 90, the higher the weight should be
+	float weightedDistance;
+	// Comparaison lambdas to sort the array
+	static bool compare(const AngleData& a, const AngleData& b){
+		return a.distance > b.distance;
+	}
+	static bool compareWeighted(const AngleData& a, const AngleData& b){ 
+		return a.weightedDistance > b.weightedDistance;
+	}
+};
+
 
 class ObstacleDetector {
 	private:
 		int echoPin;
 		int triggerPin;
 		Servo servo;
+		// Minimum distance for a direction to be acceptable
 		float minDistance;
+		// Distance in degrees between two scan points
+		int precision;
+		// Number of rotation in a scan
+		int nRotation;
+	public:
+		// Array of results from a scan
+		AngleData* scanData;
 
 	public:
-		void begin(int servoPin, int echoPin, int triggerPin, float minDistance){
+		void begin(int servoPin, int echoPin, int triggerPin, float minDistance, int precision=45){
 			// Servo Motor
 			pinMode(servoPin, OUTPUT);
 			this->servo.attach(servoPin);
@@ -22,16 +50,15 @@ class ObstacleDetector {
 			this->triggerPin = triggerPin;
 			pinMode(this->triggerPin, OUTPUT);
 			digitalWrite(this->triggerPin, LOW);
+			
+			// Servo config
 			this->minDistance = minDistance;
+			this->precision = precision;
+			this->nRotation = round((180/precision) + 1);
+			// Results array initialization
+			this->scanData = new AngleData[this->nRotation];
 		}
 
-	private:
-		/* Set the angle of the servo motor from 0 deg (left) to 180 (right) */
-		void set_angle(int degree){
-			this->servo.write(degree);
-		}
-
-	public:
 		/* Get the distance of the nearest object in meters, max is 0.75m */
 		float get_distance(){
 			digitalWrite(this->triggerPin, LOW);
@@ -43,90 +70,79 @@ class ObstacleDetector {
 			return (pulseIn(this->echoPin, HIGH)) * 0.0001657; // nice number to convert to m
 		}
 
-
 		/* Performs a 180deg scan by precision<unsigned int> degrees increments
 			and return a pointer to the array of results from 0deg to 180deg.
 			In meters.
 		*/
-		float *scan(unsigned int precision=45){
-			int nIter = (180/precision) + 1;
+		void scan(){
 			int currentAngle = 0;
-			float *scanData = new float[nIter];
+			/* struct AngleData scanData[nIter]; */
+			/* float *scanData = new float[nIter]; */
 			// The first rotation takes more time
 			this->set_angle(currentAngle);
+			// TODO dynamic speed: 24 ms per 60 deg
 			delay(100);
 
-			for (int i = 0; i < nIter; ++i){
+			for (int i = 0; i < this->nRotation; ++i){
+				AngleData data;
+				this->scanData[i] = {
+					currentAngle,
+					this->angle_to_vehicule_angle(currentAngle),
+					this->get_distance()
+				};
+
+				currentAngle += this->precision;
 				this->set_angle(currentAngle);
 				delay(75);
-				scanData[i] = this->get_distance();
-				currentAngle += precision;
 			}
+			// Reset the servo straight ahead
 			this->set_angle(90);
 
-			return scanData;
-		}
-
-
-		/* Performs a 180deg scan by precision<unsigned int> degrees increments
-			and output the angle which have the most free distance, and is the 
-			closest to 90deg (front)
- 		*/
-		int best_angle(unsigned int precision=45){
-			float *scanData = this->scan(precision);
-			int nElement = (180/precision) + 1;
-			float maxDist = 0;
-			int bestAngle;
-
-			// find the max distance scanned
-			for (int i = 0; i < nElement; i++) {
-				if(scanData[i] > maxDist){
-					maxDist = scanData[i];
-					// recalculate the angle
-					bestAngle = i*precision;
-				// for the angle before 90, the lowest value is the best
-				// but it's iterated after a higher value
-				// given scan() returning {0, 45, 90, 135, 180}
-				} else if (scanData[i] == maxDist && (i*precision) < 90){
-					// recalculate the angle
-					bestAngle = i * precision;
-				}
-			}
-
-			return bestAngle;
 		}
 
 		/* Performs a 180deg scan by precision<unsigned int> degrees increments
-			and output the angle which is the closest to 90 deg and is above 
-			the minimum distance.
-			Returns -1 if no acceptable angle has been found;
+ 			and order the result from the longest to the smallest distances.
  		*/
-		int acceptable_angle(unsigned int precision = 45){
-			float *scanData = this->scan(precision);
-			int arraySize = (180 / precision) + 1;
-			int middleIndex = (arraySize - 1) / 2;
+		int best_angle(){
+			this->scan();
+			std::sort(this->scanData, this->scanData + nRotation, this->scanData->compare);
+		}
 
-			// If there is room to move straight, let's go straight
-			if (scanData[middleIndex] > this->minDistance) return 90;
+		/* Performs a 180deg scan by precision<unsigned int> degrees increments
+ 			and order the result from the longest to the smallest distances
+			closest to the 90 deg (straight) position.
+ 		*/
+		void acceptable_angle(){
+			/* float *scanData = this->scan(precision); */
+			this->scan();
+			// Index of the 90 deg position, middle of the array
+			int middleIndex = (this->nRotation - 1) / 2;
 
-			int bestIndex = -1;
-			// Minimum acceptable index from 0 to middle
-			for (int i = (middleIndex - 1); i >= 0; i--){
-				if (scanData[i] > this->minDistance) {
-					bestIndex = i;
+			// Calculates a weighted distance, the closer to middleIndex, the higher the weight
+			// so an array[5] will be {1, 2, 3, 2, 1}*distance
+			for (int i = this->nRotation; i >= 0; --i){
+				// Pop the value if it's not in acceptable distance
+				if (this->scanData[i].distance < this->minDistance){
+					this->scanData[i].weightedDistance = -1;
+					continue;
+				}
+
+				// Middle to beginning of the array
+				if (i <= middleIndex){
+					this->scanData[i].weightedDistance = (i + 1) * this->scanData[i].distance;
+				} else {
+					// end to middle of the array
+					this->scanData[i].weightedDistance = (nRotation - i) * this->scanData[i].distance;
 				}
 			}
-			// Minimum acceptable index from middle to arraySize
-			for (int i = (middleIndex + 1); i < arraySize; i++){
-				// Take the index only if higher than the previous bestIndex
-				if (scanData[i] > this->minDistance && (arraySize - 1 - i) > bestIndex){
-					return i * precision;
-				}
-			}
-			// Minimum acceptable angle is from 0 to middle
-			// or none
-			if (bestIndex != -1) return bestIndex * precision;
-			else return -1;
+	
+			std::sort(this->scanData, this->scanData + nRotation, this->scanData->compareWeighted);
+		}
+
+	private:
+		/* Set the angle of the servo motor from 0 deg (left) to 180 (right) */
+		void set_angle(int degree){
+			this->servo.write(degree);
 		}
 
 		/* Convert the servo angle (0 to 180 deg) to vehicule angle
