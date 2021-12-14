@@ -26,6 +26,7 @@ class ObstacleDetector {
 		int echoPin;
 		int triggerPin;
 		Servo servo;
+		int servoRPM;
 		// Minimum distance for a direction to be acceptable
 		float minDistance;
 		// Distance in degrees between two scan points
@@ -37,7 +38,14 @@ class ObstacleDetector {
 		AngleData* scanData;
 
 	public:
-		void begin(int servoPin, int echoPin, int triggerPin, float minDistance, int precision=45){
+		void begin(
+			int servoPin,
+			int echoPin,
+			int triggerPin,
+			float minDistance,
+			int precision=45,
+			int servoRPM=120
+		){
 			// Servo Motor
 			pinMode(servoPin, OUTPUT);
 			this->servo.attach(servoPin);
@@ -55,6 +63,7 @@ class ObstacleDetector {
 			this->minDistance = minDistance;
 			this->precision = precision;
 			this->nRotation = round((180/precision) + 1);
+			this->servoRPM = servoRPM;
 			// Results array initialization
 			this->scanData = new AngleData[this->nRotation];
 		}
@@ -76,12 +85,7 @@ class ObstacleDetector {
 		*/
 		void scan(){
 			int currentAngle = 0;
-			/* struct AngleData scanData[nIter]; */
-			/* float *scanData = new float[nIter]; */
-			// The first rotation takes more time
 			this->set_angle(currentAngle);
-			// TODO dynamic speed: 24 ms per 60 deg
-			delay(100);
 
 			for (int i = 0; i < this->nRotation; ++i){
 				AngleData data;
@@ -93,10 +97,7 @@ class ObstacleDetector {
 
 				currentAngle += this->precision;
 				this->set_angle(currentAngle);
-				delay(75);
 			}
-			// Reset the servo straight ahead
-			this->set_angle(90);
 
 		}
 
@@ -142,7 +143,17 @@ class ObstacleDetector {
 	private:
 		/* Set the angle of the servo motor from 0 deg (left) to 180 (right) */
 		void set_angle(int degree){
+			// Calculate the time for the servo to reach its desired angle
+			// calculate the degrees to travel
+			float timeToWait = abs(this->servo.read() - degree);
+			// calculate the time in seconds to do the journey
+			// 1 RPM = 6 degree/second
+			timeToWait = timeToWait / (this->servoRPM * 6);
+			// converts to ms
+			timeToWait = timeToWait * 1000;
+			Serial.println(timeToWait);
 			this->servo.write(degree);
+			delay(timeToWait);
 		}
 
 		/* Convert the servo angle (0 to 180 deg) to vehicule angle
