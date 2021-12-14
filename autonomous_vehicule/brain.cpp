@@ -20,8 +20,6 @@ class Brain{
 			this->decisionSensibility = decisionSensibility;
 		}
 
-		// TODO Needs to drive only for available meters, then take a decision
-		// TODO Cache previous decisions to not repete them
 		/* Continously drives, straight if possible, while avoiding obstacles */
 		void drive(int speed=100){
 			this->vehicule->set_speed(speed);

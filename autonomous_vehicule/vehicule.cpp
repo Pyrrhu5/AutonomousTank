@@ -10,8 +10,6 @@ class Vehicule{
 		float degreePerTick;
 	public:
 		unsigned int tickTarget=0;
-		// for acceleration/deceleration
-		// int target speed
 
 	public: 
 		void begin(Engine &engineRight, Engine &engineLeft, float meterPerTick, float degreePerTick){ 
@@ -67,9 +65,7 @@ class Vehicule{
 			this->tickTarget = round(abs(degree)/this->degreePerTick);
 		}
 
-		/*
- 			Stop the vehicule
-		*/
+		/* Stop the vehicule */
 		void stop(){
 			for (int i=0; i<2; i++){
 				this->engines[i]->stop();

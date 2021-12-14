@@ -19,6 +19,11 @@ void encoder_left(){
 	left.increment_tick();
 }
 
+// TODO: going to far when going straight
+// TODO: brain decision sensibility should be relative to speed
+// TODO: avoid doing twice the same decision (except straight)
+// TODO: Vehicule acceleration and deceleration
+// TODO: Vehicule pid control
 void setup() {
 	Serial.begin(9600);
 
@@ -31,24 +36,12 @@ void setup() {
 
 	right.begin(12, 10, 6);
 	left.begin(9, 8, 5);
-	avoidance.begin(11, A3, A2, 0.25);
+	avoidance.begin(11, A3, A2, 0.35, 30);
 	tank.begin(right, left, 0.0275, 13.75);
 	Brain brain(tank, avoidance, 0.7);
 	brain.drive();
 }
 
 void loop() {
-	/* avoidance.acceptable_angle(); */
-	/* for (int i = 0; i < 5; i++){ */
-	/* 	Serial.print(avoidance.scanData[i].servoAngle); */
-	/* 	Serial.print("=>"); */
-	/* 	Serial.print(avoidance.scanData[i].weightedDistance); */
-	/* 	Serial.print(" ("); */
-	/* 	Serial.print(avoidance.scanData[i].distance); */
-	/* 	Serial.print(") "); */
-	/* } */
-	/* Serial.println(); */
-
-	/* delay(5000); */
 }
 

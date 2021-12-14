@@ -79,7 +79,8 @@ class ObstacleDetector {
 			return (pulseIn(this->echoPin, HIGH)) * 0.0001657; // nice number to convert to m
 		}
 
-		/* Performs a 180deg scan by precision<unsigned int> degrees increments
+		/* 
+ 			Performs a 180deg scan by precision<unsigned int> degrees increments
 			and return a pointer to the array of results from 0deg to 180deg.
 			In meters.
 		*/
@@ -101,7 +102,8 @@ class ObstacleDetector {
 
 		}
 
-		/* Performs a 180deg scan by precision<unsigned int> degrees increments
+		/* 
+ 			Performs a 180deg scan by precision<unsigned int> degrees increments
  			and order the result from the longest to the smallest distances.
  		*/
 		int best_angle(){
@@ -109,12 +111,12 @@ class ObstacleDetector {
 			std::sort(this->scanData, this->scanData + nRotation, this->scanData->compare);
 		}
 
-		/* Performs a 180deg scan by precision<unsigned int> degrees increments
+		/* 
+ 			Performs a 180deg scan by precision<unsigned int> degrees increments
  			and order the result from the longest to the smallest distances
 			closest to the 90 deg (straight) position.
  		*/
 		void acceptable_angle(){
-			/* float *scanData = this->scan(precision); */
 			this->scan();
 			// Index of the 90 deg position, middle of the array
 			int middleIndex = (this->nRotation - 1) / 2;
@@ -129,8 +131,11 @@ class ObstacleDetector {
 				}
 
 				// Middle to beginning of the array
-				if (i <= middleIndex){
+				if (i < middleIndex){
 					this->scanData[i].weightedDistance = (i + 1) * this->scanData[i].distance;
+				} else if (i == middleIndex){
+					// going straight is weighted very high
+					this->scanData[i].weightedDistance = (i + 2) * this->scanData[i].distance;
 				} else {
 					// end to middle of the array
 					this->scanData[i].weightedDistance = (nRotation - i) * this->scanData[i].distance;
@@ -151,12 +156,13 @@ class ObstacleDetector {
 			timeToWait = timeToWait / (this->servoRPM * 6);
 			// converts to ms
 			timeToWait = timeToWait * 1000;
-			Serial.println(timeToWait);
+
 			this->servo.write(degree);
 			delay(timeToWait);
 		}
 
-		/* Convert the servo angle (0 to 180 deg) to vehicule angle
+		/* 
+  			Convert the servo angle (0 to 180 deg) to vehicule angle
  			(-90 to 90) or -1
 		*/
 		int angle_to_vehicule_angle(int angle){
