@@ -31,10 +31,9 @@ void setup() {
 
 	right.begin(12, 10, 6);
 	left.begin(9, 8, 5);
-	avoidance.begin(11, A3, A2, 0.25, 0.75);
+	avoidance.begin(11, A3, A2, 0.25);
 	tank.begin(right, left, 0.0275, 13.75);
 	Brain brain(tank, avoidance, 0.1);
-	/* brain = Brain(tank, avoidance, 0.5); */
 	brain.drive();
 }
 

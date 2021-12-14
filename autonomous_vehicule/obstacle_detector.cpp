@@ -7,10 +7,9 @@ class ObstacleDetector {
 		int triggerPin;
 		Servo servo;
 		float minDistance;
-		float maxDistance;
 
 	public:
-		void begin(int servoPin, int echoPin, int triggerPin, float minDistance, float maxDistance){
+		void begin(int servoPin, int echoPin, int triggerPin, float minDistance){
 			// Servo Motor
 			pinMode(servoPin, OUTPUT);
 			this->servo.attach(servoPin);
@@ -24,7 +23,6 @@ class ObstacleDetector {
 			pinMode(this->triggerPin, OUTPUT);
 			digitalWrite(this->triggerPin, LOW);
 			this->minDistance = minDistance;
-			this->maxDistance = maxDistance;
 		}
 
 	private:
