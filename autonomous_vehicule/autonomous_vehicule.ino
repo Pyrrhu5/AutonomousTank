@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#ifndef Brain
-	#include "brain.cpp"
-#endif
+#include "engine.h"
+#include "vehicule.h"
+#include "obstacle_detector.h"
+#include "brain.h"
 
 Engine right;
 const int encoderRightPin = 3;
