@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "logger.h"
 #include "engine.h"
 #include "vehicule.h"
 #include "obstacle_detector.h"
@@ -40,6 +41,7 @@ void setup() {
 	avoidance.begin(11, A3, A2, 0.35, 30);
 	tank.begin(right, left, 0.0275, 13.75);
 	Brain brain(tank, avoidance, 0.7);
+	LOG("Ready", "INFO");
 	brain.drive();
 }
 

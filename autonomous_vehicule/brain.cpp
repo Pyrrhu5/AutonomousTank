@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#include "logger.h"
 #include "brain.h"
 
 
@@ -16,13 +18,13 @@ void Brain::drive(int speed=100){
 				
 	while (true){
 		if (choice->vehiculeAngle == 0 && choice->distance < decisionSensibility){
-			/* Serial.println("Decision to move forward for " + String(choice->distance/2) + "m"); */
+			LOG("Decision to move forward for " + String(choice->distance/2) + "m", "DECISION");
 			this->vehicule->move(choice->distance/2.0);
 		} else if (choice->vehiculeAngle == 0){
-			/* Serial.println("Decision to move forward for " + String(decisionSensibility) + "m (overwritten by decisionSensibility)"); */
+			LOG("Decision to move forward for " + String(decisionSensibility) + "m (overwritten by decisionSensibility)", "DECISION");
 			this->vehicule->move(decisionSensibility);
 		} else {
-			/* Serial.println("Decision to turn to " + String(choice->vehiculeAngle) + " degrees"); */
+			LOG("Decision to turn to " + String(choice->vehiculeAngle) + " degrees", "DECISION");
 			this->vehicule->turn(choice->vehiculeAngle);
 		}
 		while (!this->vehicule->has_reached_destination()){}
