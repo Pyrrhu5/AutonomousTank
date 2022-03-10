@@ -6,7 +6,10 @@ In manual mode, the device is controlled by an IR remote.
 
 In autonomous mode, an ultrasonic sensor sweeps left to right to detect obstacles and changes direction according to it. It avoids taking the same decisions over and over again to not get stuck in a dead-end.
 
-# License and EULA
+
+
+## License and EULA
+
 Unmodified [MIT license](https://opensource.org/licenses/MIT)
 
 See `LICENSE.md`
